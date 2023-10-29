@@ -35,6 +35,7 @@ import (
 
 	"github.com/fsniper/cvvault/cmd"
 	"github.com/fsniper/cvvault/lib"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -44,7 +45,12 @@ func initialize() {
 	viper.AddConfigPath("$HOME/.config/cvvault") // call multiple times to add many search paths
 	viper.AddConfigPath("/etc/cvvault/")         // path to look for the config file in
 	viper.AddConfigPath(".")                     // optionally look for config in the working directory
-	viper.SetDefault("projects_directory", "/home/Documents/CVVault/projects")
+
+	path, err := homedir.Expand("~/Documents/CVVault/projects")
+	if err != nil {
+		log.Fatal("Could not expand path for projects: ", err)
+	}
+	viper.SetDefault("projects_directory", path)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Println("Config was not found")
@@ -54,6 +60,8 @@ func initialize() {
 		}
 	}
 	log.Println("Config file in use:", viper.ConfigFileUsed())
+
+	lib.Check_projects_directory()
 }
 
 func main() {

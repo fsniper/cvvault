@@ -27,3 +27,17 @@ func Create_config() {
 		log.Fatal("Could not write config ", err)
 	}
 }
+
+func Check_projects_directory() {
+	path := viper.GetString("projects_directory")
+
+	// Check if the directory exists
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		log.Println("Missing project directory. Creating.")
+		err = os.MkdirAll(path, 0700)
+		if err != nil {
+			log.Fatal("Error creating projects directory ", err)
+		}
+	}
+}
