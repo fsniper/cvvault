@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,36 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package main
+
+import (
+	"log"
+
+	"github.com/fsniper/cvvault/cmd"
+	"github.com/fsniper/cvvault/lib"
+	"github.com/spf13/viper"
+)
+
+func initialize() {
+	viper.SetConfigName("cvvault-config")        // name of config file (without extension)
+	viper.SetConfigType("yaml")                  // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("$HOME/.config/cvvault") // call multiple times to add many search paths
+	viper.AddConfigPath("/etc/cvvault/")         // path to look for the config file in
+	viper.AddConfigPath(".")                     // optionally look for config in the working directory
+	viper.SetDefault("projects_directory", "/home/Documents/CVVault/projects")
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Println("Config was not found")
+			lib.Create_config()
+		} else {
+			log.Fatal("fatal error reading config file", err)
+		}
+	}
+	log.Println("Config file in use:", viper.ConfigFileUsed())
+}
+
+func main() {
+	initialize()
+	cmd.Execute()
+}

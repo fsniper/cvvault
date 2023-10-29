@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,20 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package schema
+
+type Work struct {
+	Name        string `json:"name"`
+	Location    string `json:"location"`
+	Description string `json:"description"`
+	Position    string `json:"position"`
+	Url         string `json:"url"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
+	Summary     string `json:"summary"`
+	Highlights  []struct {
+		Description string   `json:description"`
+		Tags        []string `json:"-"`
+	} `json:"highlights"`
+}

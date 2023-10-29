@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,57 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package cmd
+
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/olekukonko/tablewriter"
+
+	"github.com/fsniper/cvvault/schema"
+
+	"github.com/spf13/cobra"
+)
+
+// lsCmd represents the ls command
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List projects",
+	Run: func(cmd *cobra.Command, args []string) {
+		directory := "projects"
+		files, err := ioutil.ReadDir(directory)
+		if err != nil {
+			fmt.Println("Error reading directory \"projects\":", err)
+			return
+		}
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Directory", "Project", "Name", "Label"})
+		table.SetBorder(false)
+
+		for _, file := range files {
+			if file.IsDir() {
+				project_name := file.Name()
+				fmt.Println("parsing project basics:", project_name)
+				file_path := filepath.Join(directory, project_name, "data", "basics.json")
+				b := schema.Basics{}
+				err := b.Read(file_path)
+				if err != nil {
+					fmt.Println("Error parsing project basics:", err)
+					return
+				}
+
+				table.Append([]string{directory, project_name, b.Name, b.Label})
+			}
+		}
+		table.Render() // Send output
+	},
+}
+
+func init() {
+	projectsCmd.AddCommand(lsCmd)
+}

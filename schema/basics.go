@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,52 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package schema
+
+import (
+	"encoding/json"
+	"os"
+)
+
+type Location struct {
+	Address     string `json:"address"`
+	PostalCode  string `json:"postalCode"`
+	City        string `json:"city"`
+	CountryCode string `json:"countryCode"`
+	Region      string `json:"region"`
+}
+
+type Profile struct {
+	Network  string   `json:"network"`
+	Username string   `json:"username"`
+	Url      string   `json:"url"`
+	Tags     []string `json:"labels,omitempty"`
+}
+
+type Basics struct {
+	Name     string    `json:"name"`
+	Label    string    `json:"label"`
+	Image    string    `json:"image"`
+	Email    string    `json:"email"`
+	Phone    string    `json:"phone"`
+	Url      string    `json:"url"`
+	Summary  string    `json:"summary"`
+	Location Location  `json:"location"`
+	Profiles []Profile `json:"profiles,omitempty"`
+}
+
+func (b *Basics) Read(path string) error {
+	json_file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer json_file.Close()
+
+	// Parse JSON data into Basics struct
+	decoder := json.NewDecoder(json_file)
+	if err := decoder.Decode(&b); err != nil {
+		return err
+	}
+	return nil
+}

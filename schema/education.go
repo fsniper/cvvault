@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,16 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package schema
+
+type Education struct {
+	Institution string   `json:"institution"`
+	Url         string   `json:"url"`
+	Area        string   `json:"area"`
+	StudyType   string   `json:"studyType"`
+	startDate   string   `json:"startDate"`
+	endDate     string   `json:"endDate"`
+	Scrore      string   `json:"score"`
+	Courses     []string `json:"courses"`
+}

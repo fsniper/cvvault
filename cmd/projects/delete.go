@@ -1,3 +1,4 @@
+/*
 Copyright © 2023 M.Onur YALAZI <onur.yalazi@gmail.com>
 All rights reserved.
 
@@ -26,3 +27,38 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+*/
+package cmd
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/fsniper/cvvault/lib"
+	"github.com/spf13/cobra"
+)
+
+// deleteCmd represents the delete command
+var deleteCmd = &cobra.Command{
+	Use:   "delete [project]",
+	Short: "Delete project",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		project := args[0]
+		c := lib.Confirm(fmt.Sprintf("Are you sure to delete this project: %s?", project))
+		if c {
+			fmt.Println("Deleting project: ", project)
+			path := filepath.Join("projects", project)
+			err := os.RemoveAll(path)
+			if err != nil {
+				log.Fatal("Failed to delete", err)
+			}
+		}
+	},
+}
+
+func init() {
+	projectsCmd.AddCommand(deleteCmd)
+}
