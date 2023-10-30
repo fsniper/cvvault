@@ -31,10 +31,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/olekukonko/tablewriter"
 
@@ -48,31 +46,18 @@ var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		directory := "projects"
-		files, err := ioutil.ReadDir(directory)
+
+		projects, err := schema.Project{}.GetAll()
 		if err != nil {
-			fmt.Println("Error reading directory \"projects\":", err)
-			return
+			log.Fatal("Error getting projects ", err)
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Directory", "Project", "Name", "Label"})
 		table.SetBorder(false)
 
-		for _, file := range files {
-			if file.IsDir() {
-				project_name := file.Name()
-				fmt.Println("parsing project basics:", project_name)
-				file_path := filepath.Join(directory, project_name, "data", "basics.json")
-				b := schema.Basics{}
-				err := b.Read(file_path)
-				if err != nil {
-					fmt.Println("Error parsing project basics:", err)
-					return
-				}
-
-				table.Append([]string{directory, project_name, b.Name, b.Label})
-			}
+		for _, project := range projects {
+			table.Append([]string{project.GetFullPath(), project.Name, project.Basics.Name, project.Basics.Label})
 		}
 		table.Render() // Send output
 	},

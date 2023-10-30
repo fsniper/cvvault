@@ -34,6 +34,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -103,4 +104,38 @@ highlights":
 		log.Fatal(err)
 	}
 
+}
+
+func (p *Project) Read() {
+	fmt.Println("parsing project basics:", p.Name)
+	/* if p.Basics == nil {
+		p.Basics = Basics{}
+	}*/
+	err := p.Basics.Read(p.Name)
+	if err != nil {
+		fmt.Println("Error parsing project basics:", err)
+		return
+	}
+}
+
+func (p Project) GetAll() ([]Project, error) {
+	projects := []Project{}
+
+	projects_directory := viper.GetString("projects_directory")
+	files, err := ioutil.ReadDir(projects_directory)
+	if err != nil {
+		fmt.Println("Error reading directory", err)
+		return projects, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			project := Project{
+				Name: file.Name(),
+			}
+			project.Read()
+			projects = append(projects, project)
+		}
+	}
+	return projects, nil
 }

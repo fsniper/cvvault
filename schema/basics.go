@@ -31,8 +31,12 @@ POSSIBILITY OF SUCH DAMAGE.
 package schema
 
 import (
-	"encoding/json"
-	"os"
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/ghodss/yaml"
+	"github.com/spf13/viper"
 )
 
 type Location struct {
@@ -62,16 +66,19 @@ type Basics struct {
 	Profiles []Profile `json:"profiles,omitempty"`
 }
 
-func (b *Basics) Read(path string) error {
-	json_file, err := os.Open(path)
+func (b *Basics) Read(project_name string) error {
+
+	projects_directory := viper.GetString("projects_directory")
+	path := filepath.Join(projects_directory, project_name, "data", "basics.yaml")
+
+	yaml_content, err := ioutil.ReadFile(path)
 	if err != nil {
+		fmt.Println("Error reading file:", err)
 		return err
 	}
-	defer json_file.Close()
 
-	// Parse JSON data into Basics struct
-	decoder := json.NewDecoder(json_file)
-	if err := decoder.Decode(&b); err != nil {
+	err = yaml.Unmarshal(yaml_content, &b)
+	if err != nil {
 		return err
 	}
 	return nil
