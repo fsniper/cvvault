@@ -31,12 +31,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
-	"os"
-
+	"github.com/fsniper/cvvault/schema"
 	"github.com/spf13/cobra"
-	"gitlab.com/metakeule/scaffold/lib/scaffold"
 )
 
 var (
@@ -62,71 +58,28 @@ var createCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		template := `
->>>projects/
->>>{{.Directory}}/
->>>data/
->>>basics.json
-{
-  "name": "{{.FullName}}",
-  "label": "{{.Label}}",
-  "image": "{{.Image}}",
-  "email": "{{.Email}}",
-  "phone": "{{.Phone}}",
-  "url": "{{.Url}}",
-  "summary": "{{.Summary}}",
-  "location": {
-    "address": "{{.Address}}",
-    "postalCode": "{{.Postcode}}",
-    "city": "{{.City}}",
-    "countryCode": "{{.CountryCode}}",
-    "region": "{{.Region}}"
-  }
-}
-<<<basics.json
->>>works/
->>>my-first-company-STARTYEAR.json
-    {
-      "name": "My First Company",
-      "location": "",
-      "description": "",
-      "position": "",
-      "url": "",
-      "startDate": "",
-      "endDate": "",
-      "summary": "",
-      "highlights": [
-				{ "description": "", "labels": ["",""] },
-      ]
-    }
-<<<my-first-company-STARTYEAR.json
->>>exports/
-<<<exports/
-<<<works/
-<<<data/
-<<<{{.Directory}}/
-<<<projects/
-`
-		fields := map[string]string{
-			"Directory":   args[0],
-			"FullName":    fullName,
-			"Label":       label,
-			"Image":       image,
-			"Email":       email,
-			"Phone":       phone,
-			"Url":         url,
-			"Summary":     summary,
-			"Address":     address,
-			"Postcode":    postcode,
-			"City":        city,
-			"CountryCode": countrycode,
-			"Region":      region,
+		project := schema.Project{
+			Name: args[0],
+			Basics: schema.Basics{
+				Name:    fullName,
+				Label:   label,
+				Image:   image,
+				Email:   email,
+				Phone:   phone,
+				Url:     url,
+				Summary: summary,
+				Location: schema.Location{
+					Address:     address,
+					PostalCode:  postcode,
+					City:        city,
+					CountryCode: countrycode,
+					Region:      region,
+				},
+			},
 		}
 
-		ioreader := new(bytes.Buffer)
-		json.NewEncoder(ioreader).Encode(fields)
+		project.Create()
 
-		scaffold.Run(".", template, ioreader, os.Stdout, false)
 	},
 }
 
