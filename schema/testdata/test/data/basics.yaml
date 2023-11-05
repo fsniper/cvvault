@@ -1,0 +1,19 @@
+
+name: "John Doe"
+label: "Software Engineer"
+image: ""
+email: "john.doe@gmail.com"
+phone: "+11111111"
+url: ""
+summary: "Experienced, resourceful software engineer"
+location:
+  address: "Somewhere around nowhere"
+  postalCode: ""
+  city: "Somewhere"
+  countryCode: "US"
+  region: "Nowhere"
+profiles:
+- network: linkedin
+  username: john.doe
+  url      : "https://linkedin.com/in/john.doe"
+  tags: [all, swe]
