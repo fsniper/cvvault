@@ -108,8 +108,8 @@ highlights:
 	ioreader := new(bytes.Buffer)
 	json.NewEncoder(ioreader).Encode(p)
 
-	projects_path := viper.GetString("projectsDirectory")
-	err := scaffold.Run(projects_path, template, ioreader, os.Stdout, false)
+	projectsPath := viper.GetString("projects_directory")
+	err := scaffold.Run(projectsPath, template, ioreader, os.Stdout, false)
 	if err != nil {
 		log.Fatal(err)
 	}
