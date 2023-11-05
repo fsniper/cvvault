@@ -28,47 +28,18 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package cmd
+package schema
 
-import (
-	"log"
-	"os"
-
-	"github.com/olekukonko/tablewriter"
-
-	"github.com/fsniper/cvvault/schema"
-
-	"github.com/spf13/cobra"
-)
-
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "List projects",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		projects, err := schema.Project{}.GetAll()
-		if err != nil {
-			log.Fatal("Error getting projects ", err)
-		}
-
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Default", "Directory", "Project", "Name", "Label"})
-		table.SetBorder(false)
-
-		_default := ""
-		for _, project := range projects {
-			if project.IsDefault() {
-				_default = "*"
-			} else {
-				_default = ""
-			}
-			table.Append([]string{_default, project.GetFullPath(), project.Name, project.Basics.Name, project.Basics.Label})
-		}
-		table.Render() // Send output
-	},
-}
-
-func init() {
-	projectsCmd.AddCommand(lsCmd)
+type Volunteer struct {
+	Organization string `json:"organization"`
+	Position     string `json:"position"`
+	Url          string `json:"url"`
+	StartDate    string `json:"startDate"`
+	EndDate      string `json:"endDate"`
+	Summary      string `json:"summary"`
+	Highlights   []struct {
+		Description string   `json:description"`
+		Tags        []string `json:"-"`
+	} `json:"highlights"`
+	Tags []string `json:"-"`
 }

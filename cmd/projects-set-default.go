@@ -32,9 +32,6 @@ package cmd
 
 import (
 	"log"
-	"os"
-
-	"github.com/olekukonko/tablewriter"
 
 	"github.com/fsniper/cvvault/schema"
 
@@ -42,33 +39,20 @@ import (
 )
 
 // lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "List projects",
+var setDefaultCmd = &cobra.Command{
+	Use:   "set-default",
+	Short: "Set a project as default",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		projects, err := schema.Project{}.GetAll()
+		project := schema.Project{Name: args[0]}
+		err := project.Read()
 		if err != nil {
-			log.Fatal("Error getting projects ", err)
+			log.Fatal("Error reading project ", err)
 		}
-
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Default", "Directory", "Project", "Name", "Label"})
-		table.SetBorder(false)
-
-		_default := ""
-		for _, project := range projects {
-			if project.IsDefault() {
-				_default = "*"
-			} else {
-				_default = ""
-			}
-			table.Append([]string{_default, project.GetFullPath(), project.Name, project.Basics.Name, project.Basics.Label})
-		}
-		table.Render() // Send output
+		log.Println("Setting projects as default: ", args[0])
+		project.SetDefault()
 	},
 }
 
 func init() {
-	projectsCmd.AddCommand(lsCmd)
+	projectsCmd.AddCommand(setDefaultCmd)
 }

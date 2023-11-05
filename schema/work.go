@@ -30,7 +30,20 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package schema
 
+import (
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+	"sort"
+	"strings"
+	"time"
+
+	"github.com/ghodss/yaml"
+	"github.com/spf13/viper"
+)
+
 type Work struct {
+	Path        string `json:"-"`
 	Name        string `json:"name"`
 	Location    string `json:"location"`
 	Description string `json:"description"`
@@ -43,4 +56,53 @@ type Work struct {
 		Description string   `json:description"`
 		Tags        []string `json:"-"`
 	} `json:"highlights"`
+}
+
+func (w *Work) Read() error {
+	yaml_content, err := ioutil.ReadFile(w.Path)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(yaml_content, &w)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w Work) GetAll(project_name string) ([]Work, error) {
+
+	works := []Work{}
+	projects_directory := viper.GetString("projects_directory")
+	works_directory := filepath.Join(projects_directory, project_name, "data", "works")
+
+	files, err := ioutil.ReadDir(works_directory)
+	if err != nil {
+		fmt.Println("Error reading directory", err)
+		return works, err
+	}
+
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".yaml") {
+			work := Work{Path: filepath.Join(works_directory, file.Name())}
+			err := work.Read()
+			if err != nil {
+				fmt.Println("Error reading work: ", work.Path)
+				return works, err
+			}
+			works = append(works, work)
+		}
+	}
+
+	less := func(i, j int) bool {
+		const shortForm = "2006-01-02"
+		ti, _ := time.Parse(shortForm, works[i].StartDate)
+		tj, _ := time.Parse(shortForm, works[j].StartDate)
+		return ti.Before(tj)
+	}
+
+	sort.Slice(works, less)
+
+	return works, nil
 }

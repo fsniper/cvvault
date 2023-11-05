@@ -31,44 +31,22 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"log"
-	"os"
-
-	"github.com/olekukonko/tablewriter"
-
 	"github.com/fsniper/cvvault/schema"
 
 	"github.com/spf13/cobra"
 )
 
 // lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "List projects",
+var printCmd = &cobra.Command{
+	Use:   "print",
+	Short: "Print project",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		projects, err := schema.Project{}.GetAll()
-		if err != nil {
-			log.Fatal("Error getting projects ", err)
-		}
-
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Default", "Directory", "Project", "Name", "Label"})
-		table.SetBorder(false)
-
-		_default := ""
-		for _, project := range projects {
-			if project.IsDefault() {
-				_default = "*"
-			} else {
-				_default = ""
-			}
-			table.Append([]string{_default, project.GetFullPath(), project.Name, project.Basics.Name, project.Basics.Label})
-		}
-		table.Render() // Send output
+		project := schema.Project{Name: args[0]}
+		project.Print()
 	},
 }
 
 func init() {
-	projectsCmd.AddCommand(lsCmd)
+	projectsCmd.AddCommand(printCmd)
 }

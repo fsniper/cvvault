@@ -37,15 +37,25 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 	"gitlab.com/metakeule/scaffold/lib/scaffold"
+	"gopkg.in/yaml.v2"
 )
 
+type ProjectMeta struct {
+	Read bool
+	Path string
+}
+
 type Project struct {
-	Name   string
-	Basics Basics
-	Works  []Work
+	Meta      ProjectMeta `json:"-"`
+	Name      string
+	Basics    Basics
+	Works     []Work
+	Volunteer []Volunteer
+	Education []Education
 }
 
 func (p *Project) GetFullPath() string {
@@ -69,11 +79,11 @@ phone: "{{.Basics.phone}}"
 url: "{{.Basics.url}}"
 summary: "{{.Basics.summary}}"
 location:
-	address: "{{.Basics.location.address}}"
-	postalCode: "{{.Basics.location.postalCode}}"
-	city: "{{.Basics.location.city}}"
-	countryCode: "{{.Basics.location.countryCode}}"
-	region: "{{.Basics.location.region}}"
+  address: "{{.Basics.location.address}}"
+  postalCode: "{{.Basics.location.postalCode}}"
+  city: "{{.Basics.location.city}}"
+  countryCode: "{{.Basics.location.countryCode}}"
+  region: "{{.Basics.location.region}}"
 <<<basics.yaml
 >>>works/
 >>>my-first-company-STARTYEAR.yaml
@@ -85,7 +95,7 @@ url: ""
 startDate: ""
 endDate: ""
 summary: ""
-highlights":
+highlights:
 - description: "" 
 	tags: ["",""]
 <<<my-first-company-STARTYEAR.yaml
@@ -106,16 +116,47 @@ highlights":
 
 }
 
-func (p *Project) Read() {
-	fmt.Println("parsing project basics:", p.Name)
-	/* if p.Basics == nil {
-		p.Basics = Basics{}
-	}*/
+func (p *Project) SetDefault() {
+	viper.Set("project.default", p.Name)
+	viper.WriteConfig()
+}
+
+func (p *Project) IsDefault() bool {
+	default_project := viper.GetString("project.default")
+	return (p.Name == default_project)
+}
+
+func (p *Project) Read() error {
+	if p.Meta.Read == true {
+		return nil
+	}
 	err := p.Basics.Read(p.Name)
 	if err != nil {
-		fmt.Println("Error parsing project basics:", err)
+		return err
+	}
+
+	works, err := Work{}.GetAll(p.Name)
+	if err != nil {
+		return err
+	}
+	p.Works = works
+	p.Meta.Read = true
+	return nil
+}
+
+func (p *Project) Print() {
+
+	err := p.Read()
+	if err != nil {
+		log.Fatal("Error reading project ", err)
+	}
+
+	y, err := yaml.Marshal(p)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
 		return
 	}
+	fmt.Println(string(y))
 }
 
 func (p Project) GetAll() ([]Project, error) {
@@ -132,6 +173,10 @@ func (p Project) GetAll() ([]Project, error) {
 		if file.IsDir() {
 			project := Project{
 				Name: file.Name(),
+				Meta: ProjectMeta{
+					Read: false,
+					Path: filepath.Join(projects_directory, file.Name()),
+				},
 			}
 			project.Read()
 			projects = append(projects, project)

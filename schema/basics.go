@@ -31,7 +31,6 @@ POSSIBILITY OF SUCH DAMAGE.
 package schema
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -73,7 +72,6 @@ func (b *Basics) Read(project_name string) error {
 
 	yaml_content, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
 		return err
 	}
 
