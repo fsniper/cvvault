@@ -30,29 +30,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 package schema
 
-import (
-	"testing"
+import "embed"
 
-	"github.com/spf13/viper"
-)
-
-func TestBasicsRead(t *testing.T) {
-
-	viper.Set("projects_directory", "testdata")
-	basics := Basics{}
-	err := basics.Read("test")
-	if err != nil {
-		t.Fatalf("Error reading basics %v", err)
-	}
-
-	if basics.Name != "John Doe" {
-		t.Errorf("Expected Name to be 'John Doe', but got %s", basics.Name)
-	}
-	if basics.Label != "Software Engineer" {
-		t.Errorf("Expected Label to be 'Software Engineer', but got %s", basics.Label)
-	}
-	if basics.Profiles[0].Network != "linkedin" {
-		t.Errorf("Expected first profile's network to be 'linkedin', but got %s", basics.Label)
-	}
-
-}
+//go:embed json-resume-schema.json
+//go:embed json-resume-schema-basics.json
+var embeddedContent embed.FS

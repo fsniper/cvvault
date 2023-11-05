@@ -4,7 +4,7 @@ label: "Software Engineer"
 image: ""
 email: "john.doe@gmail.com"
 phone: "+11111111"
-url: ""
+url: "http://www.google.com"
 summary: "Experienced, resourceful software engineer"
 location:
   address: "Somewhere around nowhere"

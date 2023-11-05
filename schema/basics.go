@@ -31,10 +31,15 @@ POSSIBILITY OF SUCH DAMAGE.
 package schema
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
+	"github.com/qri-io/jsonschema"
 	"github.com/spf13/viper"
 )
 
@@ -65,17 +70,47 @@ type Basics struct {
 	Profiles []Profile `json:"profiles,omitempty"`
 }
 
-func (b *Basics) Read(project_name string) error {
+func jsonValidate(data []byte) {
+	log.Println("Validating json for basics")
+	schemaData, err := embeddedContent.ReadFile("json-resume-schema-basics.json")
+	if err != nil {
+		fmt.Printf("Error reading embedded file: %v\n", err)
+		return
+	}
 
-	projects_directory := viper.GetString("projects_directory")
-	path := filepath.Join(projects_directory, project_name, "data", "basics.yaml")
+	rs := &jsonschema.Schema{}
+	if err := json.Unmarshal(schemaData, rs); err != nil {
+		panic("unmarshal schema: " + err.Error())
+	}
 
-	yaml_content, err := ioutil.ReadFile(path)
+	errs, err := rs.ValidateBytes(context.Background(), data)
+	if err != nil {
+		log.Fatal("Error validating data ", err)
+	}
+	if len(errs) > 0 {
+		for _, e := range errs {
+			fmt.Println("Validation Error: ", e.Error())
+		}
+		log.Fatal("Exiting for validation errors in Project.Basics")
+	}
+
+}
+
+func (b *Basics) Read(projectName string) error {
+
+	log.Printf("Reading basics for project: %s\n", projectName)
+	projectsDirectory := viper.GetString("projects_directory")
+	path := filepath.Join(projectsDirectory, projectName, "data", "basics.yaml")
+
+	yamlContent, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
 
-	err = yaml.Unmarshal(yaml_content, &b)
+	jsonContent, err := yaml.YAMLToJSON(yamlContent)
+	jsonValidate(jsonContent)
+
+	err = yaml.Unmarshal(yamlContent, &b)
 	if err != nil {
 		return err
 	}

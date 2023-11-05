@@ -91,7 +91,7 @@ name: "My First Company"
 location: ""
 description: ""
 position: ""
-url: ""
+#url: ""
 startDate: ""
 endDate: ""
 summary: ""
@@ -108,7 +108,7 @@ highlights:
 	ioreader := new(bytes.Buffer)
 	json.NewEncoder(ioreader).Encode(p)
 
-	projects_path := viper.GetString("projects_directory")
+	projects_path := viper.GetString("projectsDirectory")
 	err := scaffold.Run(projects_path, template, ioreader, os.Stdout, false)
 	if err != nil {
 		log.Fatal(err)
@@ -162,8 +162,8 @@ func (p *Project) Print() {
 func (p Project) GetAll() ([]Project, error) {
 	projects := []Project{}
 
-	projects_directory := viper.GetString("projects_directory")
-	files, err := ioutil.ReadDir(projects_directory)
+	projectsDirectory := viper.GetString("projects_directory")
+	files, err := ioutil.ReadDir(projectsDirectory)
 	if err != nil {
 		fmt.Println("Error reading directory", err)
 		return projects, err
@@ -175,7 +175,7 @@ func (p Project) GetAll() ([]Project, error) {
 				Name: file.Name(),
 				Meta: ProjectMeta{
 					Read: false,
-					Path: filepath.Join(projects_directory, file.Name()),
+					Path: filepath.Join(projectsDirectory, file.Name()),
 				},
 			}
 			project.Read()

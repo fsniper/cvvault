@@ -31,78 +31,53 @@ POSSIBILITY OF SUCH DAMAGE.
 package schema
 
 import (
-	"fmt"
-	"io/ioutil"
-	"path/filepath"
-	"sort"
+	"io"
+	"os"
 	"strings"
-	"time"
+	"testing"
 
-	"github.com/ghodss/yaml"
 	"github.com/spf13/viper"
 )
 
-type Work struct {
-	Path        string `json:"-"`
-	Name        string `json:"name"`
-	Location    string `json:"location"`
-	Description string `json:"description"`
-	Position    string `json:"position"`
-	Url         string `json:"url"`
-	StartDate   string `json:"startDate"`
-	EndDate     string `json:"endDate"`
-	Summary     string `json:"summary"`
-	Highlights  []struct {
-		Description string   `json:"description"`
-		Tags        []string `json:"-"`
-	} `json:"highlights"`
-}
+func TestProjectRead(t *testing.T) {
 
-func (w *Work) Read() error {
-	yaml_content, err := ioutil.ReadFile(w.Path)
+	viper.Set("projects_directory", "testdata")
+	project := Project{Name: "test"}
+	err := project.Read()
 	if err != nil {
-		return err
+		t.Fatalf("Error reading project %v", err)
 	}
 
-	err = yaml.Unmarshal(yaml_content, &w)
-	if err != nil {
-		return err
+	p := project.GetFullPath()
+	if p != "testdata/test" {
+		t.Errorf("Expected project directory to be 'testdata/test', but got %s", p)
 	}
-	return nil
-}
-
-func (w Work) GetAll(project_name string) ([]Work, error) {
-
-	works := []Work{}
-	projectsDirectory := viper.GetString("projects_directory")
-	works_directory := filepath.Join(projectsDirectory, project_name, "data", "works")
-
-	files, err := ioutil.ReadDir(works_directory)
-	if err != nil {
-		fmt.Println("Error reading directory", err)
-		return works, err
+	if project.Basics.Name != "John Doe" {
+		t.Errorf("Expected Name to be 'John Doe', but got %s", project.Basics.Name)
+	}
+	if !project.Meta.Read {
+		t.Errorf("Expected project meta data to be set to read")
+	}
+	if project.Basics.Label != "Software Engineer" {
+		t.Errorf("Expected Label to be 'Software Engineer', but got %s", project.Basics.Label)
+	}
+	if project.Basics.Profiles[0].Network != "linkedin" {
+		t.Errorf("Expected first profile's network to be 'linkedin', but got %s", project.Basics.Label)
 	}
 
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ".yaml") {
-			work := Work{Path: filepath.Join(works_directory, file.Name())}
-			err := work.Read()
-			if err != nil {
-				fmt.Println("Error reading work: ", work.Path)
-				return works, err
-			}
-			works = append(works, work)
-		}
+	/* Let's test Print */
+	rescueStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	project.Print()
+	w.Close()
+	out, _ := io.ReadAll(r)
+
+	if !strings.Contains(string(out), "name: John Doe") {
+		t.Errorf("Expected Name in the output to be 'John Doe', but can't")
 	}
 
-	less := func(i, j int) bool {
-		const shortForm = "2006-01-02"
-		ti, _ := time.Parse(shortForm, works[i].StartDate)
-		tj, _ := time.Parse(shortForm, works[j].StartDate)
-		return ti.Before(tj)
-	}
+	os.Stdout = rescueStdout
 
-	sort.Slice(works, less)
-
-	return works, nil
 }

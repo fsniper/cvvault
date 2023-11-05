@@ -54,14 +54,14 @@ func initialize() {
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Println("Config was not found")
-			lib.Create_config()
+			lib.CreateConfig()
 		} else {
 			log.Fatal("fatal error reading config file", err)
 		}
 	}
 	log.Println("Config file in use:", viper.ConfigFileUsed())
 
-	lib.Check_projects_directory()
+	lib.CheckProjectsDirectory()
 }
 
 func main() {

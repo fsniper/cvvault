@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Create_config() {
+func CreateConfig() {
 	home, err := homedir.Dir()
 	if err != nil {
 		log.Fatal("Could not get home directory ", err)
@@ -28,7 +28,7 @@ func Create_config() {
 	}
 }
 
-func Check_projects_directory() {
+func CheckProjectsDirectory() {
 	path := viper.GetString("projects_directory")
 
 	// Check if the directory exists
