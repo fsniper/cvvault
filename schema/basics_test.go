@@ -39,14 +39,12 @@ import (
 func TestRead(t *testing.T) {
 
 	viper.Set("projects_directory", "testdata")
-	// Create a Basics struct and call the Read method
 	basics := Basics{}
 	err := basics.Read("test")
 	if err != nil {
 		t.Fatalf("Error reading basics %v", err)
 	}
 
-	// Perform assertions to check the filled-in data
 	if basics.Name != "John Doe" {
 		t.Errorf("Expected Name to be 'John Doe', but got %s", basics.Name)
 	}
@@ -54,5 +52,4 @@ func TestRead(t *testing.T) {
 		t.Errorf("Expected Label to be 'Software Engineer', but got %s", basics.Label)
 	}
 
-	// You can add more assertions for other fields as needed.
 }

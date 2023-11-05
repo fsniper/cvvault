@@ -38,7 +38,7 @@ type Volunteer struct {
 	EndDate      string `json:"endDate"`
 	Summary      string `json:"summary"`
 	Highlights   []struct {
-		Description string   `json:description"`
+		Description string   `json:"description"`
 		Tags        []string `json:"-"`
 	} `json:"highlights"`
 	Tags []string `json:"-"`

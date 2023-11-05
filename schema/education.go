@@ -35,8 +35,8 @@ type Education struct {
 	Url         string   `json:"url"`
 	Area        string   `json:"area"`
 	StudyType   string   `json:"studyType"`
-	startDate   string   `json:"startDate"`
-	endDate     string   `json:"endDate"`
+	StartDate   string   `json:"startDate"`
+	EndDate     string   `json:"endDate"`
 	Scrore      string   `json:"score"`
 	Courses     []string `json:"courses"`
 }
