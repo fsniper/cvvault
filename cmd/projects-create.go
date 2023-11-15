@@ -58,7 +58,7 @@ var createCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		project := schema.Project{
+		project := schema.CVProject{
 			Name: args[0],
 			Basics: schema.Basics{
 				Name:    fullName,

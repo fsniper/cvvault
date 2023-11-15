@@ -28,25 +28,57 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package cmd
+
+package lib
 
 import (
-	"github.com/fsniper/cvvault/schema"
+	"log"
+	"os"
+	"path/filepath"
+	"regexp"
 
-	"github.com/spf13/cobra"
+	"github.com/go-git/go-git/v5"
+	"github.com/spf13/viper"
 )
 
-// lsCmd represents the ls command
-var printCmd = &cobra.Command{
-	Use:   "print",
-	Short: "Print project",
-	Run: func(cmd *cobra.Command, args []string) {
+func getGitName(url string) string {
+	re := regexp.MustCompile(`/([^/]+?)(?:\.git)?$`)
 
-		project := schema.CVProject{Name: args[0]}
-		project.Print()
-	},
+	match := re.FindStringSubmatch(url)
+	if match != nil {
+		return match[1]
+	} else {
+		log.Fatal("Can't get the name from the url")
+		return ""
+	}
 }
 
-func init() {
-	projectsCmd.AddCommand(printCmd)
+func CloneGitRepo(url string) string {
+	log.Print("Cloning template")
+	templatesDirectory := viper.GetString("templates_directory")
+
+	name := getGitName(url)
+	path := filepath.Join(templatesDirectory, name)
+
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		repo, err := git.PlainOpen(path)
+		if err != nil {
+			log.Fatal("Could not open template git repo ", err)
+		}
+
+		worktree, err := repo.Worktree()
+		err = worktree.Pull(&git.PullOptions{RemoteName: "origin"})
+		if err != nil && err != git.NoErrAlreadyUpToDate {
+			log.Fatal("Could not pull template git repo ", err)
+		}
+	} else {
+		// Repo does not exist, so clone it
+		_, err := git.PlainClone(path, false, &git.CloneOptions{URL: url, Progress: os.Stdout})
+		if err != nil {
+			log.Fatal("Could not clone emplate git repo", err)
+		}
+		return path
+	}
+
+	return path
 }

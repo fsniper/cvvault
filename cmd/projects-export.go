@@ -31,22 +31,26 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"github.com/fsniper/cvvault/schema"
-
+	"github.com/fsniper/cvvault/lib"
 	"github.com/spf13/cobra"
 )
 
-// lsCmd represents the ls command
-var printCmd = &cobra.Command{
-	Use:   "print",
-	Short: "Print project",
-	Run: func(cmd *cobra.Command, args []string) {
+var ignoreTags []string
+var templateUrl string
 
-		project := schema.CVProject{Name: args[0]}
-		project.Print()
+// lsCmd represents the ls command
+var exportCmd = &cobra.Command{
+	Use:   "export",
+	Short: "Export project as json or pdf if a json-resume handlebars template provided",
+	Run: func(cmd *cobra.Command, args []string) {
+		lib.CloneGitRepo(templateUrl)
+		//project := schema.CVProject{Name: args[0]}
+		//project.Export(ignoreTags, templateUrl)
 	},
 }
 
 func init() {
-	projectsCmd.AddCommand(printCmd)
+	projectsCmd.AddCommand(exportCmd)
+	exportCmd.Flags().StringSliceVar(&ignoreTags, "ignoreTags", []string{}, "a comma seperated tags list to ignore. E.g. tag1,tag2,tag3")
+	exportCmd.Flags().StringVarP(&templateUrl, "templateUrl", "t", "", "a git url for a resumed handlebars theme. Should be boilerplate compatible. https://github.com/jsonresume/jsonresume-theme-boilerplate/ ")
 }

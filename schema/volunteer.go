@@ -31,15 +31,12 @@ POSSIBILITY OF SUCH DAMAGE.
 package schema
 
 type Volunteer struct {
-	Organization string `json:"organization"`
-	Position     string `json:"position"`
-	Url          string `json:"url"`
-	StartDate    string `json:"startDate"`
-	EndDate      string `json:"endDate"`
-	Summary      string `json:"summary"`
-	Highlights   []struct {
-		Description string   `json:"description"`
-		Tags        []string `json:"-"`
-	} `json:"highlights"`
-	Tags []string `json:"-"`
+	Organization string        `json:"organization"`
+	Position     string        `json:"position"`
+	Url          string        `json:"url"`
+	StartDate    string        `json:"startDate"`
+	EndDate      string        `json:"endDate"`
+	Summary      string        `json:"summary"`
+	Highlights   []interface{} `json:"highlights"`
+	Tags         []string      `json:"-"`
 }

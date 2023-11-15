@@ -39,30 +39,30 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestProjectRead(t *testing.T) {
+func TestCVProjectRead(t *testing.T) {
 
-	viper.Set("projects_directory", "testdata")
-	project := Project{Name: "test"}
-	err := project.Read()
+	viper.Set("cvprojects_directory", "testdata")
+	cvproject := CVProject{Name: "test"}
+	err := cvproject.Read()
 	if err != nil {
-		t.Fatalf("Error reading project %v", err)
+		t.Fatalf("Error reading cvproject %v", err)
 	}
 
-	p := project.GetFullPath()
+	p := cvproject.GetFullPath()
 	if p != "testdata/test" {
-		t.Errorf("Expected project directory to be 'testdata/test', but got %s", p)
+		t.Errorf("Expected cvproject directory to be 'testdata/test', but got %s", p)
 	}
-	if project.Basics.Name != "John Doe" {
-		t.Errorf("Expected Name to be 'John Doe', but got %s", project.Basics.Name)
+	if cvproject.Basics.Name != "John Doe" {
+		t.Errorf("Expected Name to be 'John Doe', but got %s", cvproject.Basics.Name)
 	}
-	if !project.Meta.Read {
-		t.Errorf("Expected project meta data to be set to read")
+	if !cvproject.Meta.Read {
+		t.Errorf("Expected cvproject meta data to be set to read")
 	}
-	if project.Basics.Label != "Software Engineer" {
-		t.Errorf("Expected Label to be 'Software Engineer', but got %s", project.Basics.Label)
+	if cvproject.Basics.Label != "Software Engineer" {
+		t.Errorf("Expected Label to be 'Software Engineer', but got %s", cvproject.Basics.Label)
 	}
-	if project.Basics.Profiles[0].Network != "linkedin" {
-		t.Errorf("Expected first profile's network to be 'linkedin', but got %s", project.Basics.Label)
+	if cvproject.Basics.Profiles[0].Network != "linkedin" {
+		t.Errorf("Expected first profile's network to be 'linkedin', but got %s", cvproject.Basics.Label)
 	}
 
 	/* Let's test Print */
@@ -70,7 +70,7 @@ func TestProjectRead(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	project.Print()
+	cvproject.Print()
 	w.Close()
 	out, _ := io.ReadAll(r)
 

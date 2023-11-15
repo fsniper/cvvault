@@ -43,19 +43,16 @@ import (
 )
 
 type Work struct {
-	Path        string `json:"-"`
-	Name        string `json:"name"`
-	Location    string `json:"location"`
-	Description string `json:"description"`
-	Position    string `json:"position"`
-	Url         string `json:"url"`
-	StartDate   string `json:"startDate"`
-	EndDate     string `json:"endDate"`
-	Summary     string `json:"summary"`
-	Highlights  []struct {
-		Description string   `json:"description"`
-		Tags        []string `json:"-"`
-	} `json:"highlights"`
+	Path        string        `json:"-"`
+	Name        string        `json:"name"`
+	Location    string        `json:"location"`
+	Description string        `json:"description"`
+	Position    string        `json:"position"`
+	Url         string        `json:"url"`
+	StartDate   string        `json:"startDate"`
+	EndDate     string        `json:"endDate"`
+	Summary     string        `json:"summary"`
+	Highlights  []interface{} `json:"highlights"`
 }
 
 func (w *Work) Read() error {
@@ -69,6 +66,27 @@ func (w *Work) Read() error {
 		return err
 	}
 	return nil
+}
+
+func (w *Work) Filter(ignoreTags []string) (Work, error) {
+	var filteredHighlights []interface{}
+	for _, h := range w.Highlights {
+
+		highlight := Highlight{}
+		highlight.New(h.(map[string]interface{}))
+
+		result := highlight.Filter(ignoreTags)
+		if result != nil {
+			s, ok := result.(string)
+			if ok {
+				filteredHighlights = append(filteredHighlights, s)
+			}
+		}
+	}
+	//log.Printf("Old work: %+v", w)
+	w.Highlights = filteredHighlights
+	//log.Printf("New work: %+v", w)
+	return *w, nil
 }
 
 func (w Work) GetAll(project_name string) ([]Work, error) {

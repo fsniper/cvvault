@@ -28,25 +28,34 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package cmd
+package schema
 
-import (
-	"github.com/fsniper/cvvault/schema"
-
-	"github.com/spf13/cobra"
-)
-
-// lsCmd represents the ls command
-var printCmd = &cobra.Command{
-	Use:   "print",
-	Short: "Print project",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		project := schema.CVProject{Name: args[0]}
-		project.Print()
-	},
+type Highlight struct {
+	Description string   `json:"description"`
+	Tags        []string `json:"-"`
 }
 
-func init() {
-	projectsCmd.AddCommand(printCmd)
+func (h *Highlight) New(data map[string]interface{}) {
+	for key, value := range data {
+		switch key {
+		case "description":
+			h.Description = value.(string)
+		case "tags":
+			tags := value.([]interface{})
+			for _, tag := range tags {
+				h.Tags = append(h.Tags, tag.(string))
+			}
+		}
+	}
+}
+
+func (h Highlight) Filter(ignoreTags []string) interface{} {
+	for _, ignoreTag := range ignoreTags {
+		for _, tag := range h.Tags {
+			if tag == ignoreTag {
+				return nil
+			}
+		}
+	}
+	return h.Description
 }

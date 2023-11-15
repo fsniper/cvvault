@@ -34,4 +34,5 @@ import "embed"
 
 //go:embed json-resume-schema.json
 //go:embed json-resume-schema-basics.json
+//go:embed project.tmpl
 var EmbeddedContent embed.FS

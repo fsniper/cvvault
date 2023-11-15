@@ -39,18 +39,21 @@ import (
 	"os"
 	"path/filepath"
 
+	embedcontent "github.com/fsniper/cvvault/emb"
+	"github.com/fsniper/cvvault/lib"
+	"gopkg.in/yaml.v2"
+
 	"github.com/spf13/viper"
 	"gitlab.com/metakeule/scaffold/lib/scaffold"
-	"gopkg.in/yaml.v2"
 )
 
-type ProjectMeta struct {
+type CVProjectMeta struct {
 	Read bool
 	Path string
 }
 
-type Project struct {
-	Meta      ProjectMeta `json:"-"`
+type CVProject struct {
+	Meta      CVProjectMeta `json:"-"`
 	Name      string
 	Basics    Basics
 	Works     []Work
@@ -58,75 +61,39 @@ type Project struct {
 	Education []Education
 }
 
-func (p *Project) GetFullPath() string {
-	projects_path := viper.GetString("projects_directory")
-	return fmt.Sprintf("%s/%s", projects_path, p.Name)
+func (p *CVProject) GetFullPath() string {
+	cvprojects_path := viper.GetString("projects_directory")
+	return fmt.Sprintf("%s/%s", cvprojects_path, p.Name)
 }
 
-func (p *Project) Create() {
+func (p *CVProject) Create() {
 
-	log.Println("Creating Project: ", p.Name, p.GetFullPath())
+	log.Println("Creating CVProject: ", p.Name, p.GetFullPath())
 
-	template := `
->>>{{.Name}}/
->>>data/
->>>basics.yaml
-name: "{{.Basics.name}}"
-label: "{{.Basics.label}}"
-image: "{{.Basics.image}}"
-email: "{{.Basics.email}}"
-phone: "{{.Basics.phone}}"
-url: "{{.Basics.url}}"
-summary: "{{.Basics.summary}}"
-location:
-  address: "{{.Basics.location.address}}"
-  postalCode: "{{.Basics.location.postalCode}}"
-  city: "{{.Basics.location.city}}"
-  countryCode: "{{.Basics.location.countryCode}}"
-  region: "{{.Basics.location.region}}"
-<<<basics.yaml
->>>works/
->>>my-first-company-STARTYEAR.yaml
-name: "My First Company"
-location: ""
-description: ""
-position: ""
-#url: ""
-startDate: ""
-endDate: ""
-summary: ""
-highlights:
-- description: "" 
-	tags: ["",""]
-<<<my-first-company-STARTYEAR.yaml
->>>exports/
-<<<exports/
-<<<works/
-<<<data/
-<<<{{.Name}}/
-`
+	template, err := embedcontent.EmbeddedContent.ReadFile("project.tmpl")
+
 	ioreader := new(bytes.Buffer)
 	json.NewEncoder(ioreader).Encode(p)
 
-	projectsPath := viper.GetString("projects_directory")
-	err := scaffold.Run(projectsPath, template, ioreader, os.Stdout, false)
+	cvprojectsPath := viper.GetString("projects_directory")
+	err = scaffold.Run(cvprojectsPath, string(template), ioreader, os.Stdout, false)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 }
 
-func (p *Project) SetDefault() {
-	viper.Set("project.default", p.Name)
+func (p *CVProject) SetDefault() {
+	viper.Set("cvproject.default", p.Name)
 	viper.WriteConfig()
 }
 
-func (p *Project) IsDefault() bool {
-	default_project := viper.GetString("project.default")
-	return (p.Name == default_project)
+func (p *CVProject) IsDefault() bool {
+	default_cvproject := viper.GetString("cvproject.default")
+	return (p.Name == default_cvproject)
 }
 
-func (p *Project) Read() error {
+func (p *CVProject) Read() error {
 	if p.Meta.Read == true {
 		return nil
 	}
@@ -144,11 +111,39 @@ func (p *Project) Read() error {
 	return nil
 }
 
-func (p *Project) Print() {
+func (p *CVProject) Export(ignoreTags []string, templateUrl string) {
 
 	err := p.Read()
 	if err != nil {
-		log.Fatal("Error reading project ", err)
+		log.Fatal("Error reading cvproject ", err)
+	}
+
+	for w, _ := range p.Works {
+		p.Works[w].Filter(ignoreTags)
+	}
+
+	y, err := json.Marshal(p)
+	if err != nil {
+		log.Fatal("error yaml marhal: ", err)
+	}
+
+	fmt.Println(string(y))
+
+	path := lib.CloneGitRepo(templateUrl)
+	log.Println(path)
+
+	//path := filepath.Join(projectsDirectory, projectName, "data", "basics.yaml")
+
+	//yamlContent, err := ioutil.ReadFile(path)
+	//var css = fs.readFileSync(__dirname+"/style.css", "utf-8")
+	//var tpl = fs.readFileSync(__dirname+"/resume.hbs", "utf-8")
+}
+
+func (p *CVProject) Print() {
+
+	err := p.Read()
+	if err != nil {
+		log.Fatal("Error reading cvproject ", err)
 	}
 
 	y, err := yaml.Marshal(p)
@@ -159,28 +154,28 @@ func (p *Project) Print() {
 	fmt.Println(string(y))
 }
 
-func (p Project) GetAll() ([]Project, error) {
-	projects := []Project{}
+func (p CVProject) GetAll() ([]CVProject, error) {
+	cvprojects := []CVProject{}
 
-	projectsDirectory := viper.GetString("projects_directory")
-	files, err := ioutil.ReadDir(projectsDirectory)
+	cvprojectsDirectory := viper.GetString("projects_directory")
+	files, err := ioutil.ReadDir(cvprojectsDirectory)
 	if err != nil {
 		fmt.Println("Error reading directory", err)
-		return projects, err
+		return cvprojects, err
 	}
 
 	for _, file := range files {
 		if file.IsDir() {
-			project := Project{
+			cvproject := CVProject{
 				Name: file.Name(),
-				Meta: ProjectMeta{
+				Meta: CVProjectMeta{
 					Read: false,
-					Path: filepath.Join(projectsDirectory, file.Name()),
+					Path: filepath.Join(cvprojectsDirectory, file.Name()),
 				},
 			}
-			project.Read()
-			projects = append(projects, project)
+			cvproject.Read()
+			cvprojects = append(cvprojects, cvproject)
 		}
 	}
-	return projects, nil
+	return cvprojects, nil
 }

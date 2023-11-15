@@ -28,25 +28,25 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package cmd
+
+package lib
 
 import (
-	"github.com/fsniper/cvvault/schema"
-
-	"github.com/spf13/cobra"
+	"testing"
 )
 
-// lsCmd represents the ls command
-var printCmd = &cobra.Command{
-	Use:   "print",
-	Short: "Print project",
-	Run: func(cmd *cobra.Command, args []string) {
+func TestGitName(t *testing.T) {
+	urls := [][]string{
+		{"https://github.com/Bard/Bard.git", "Bard"},
+		{"https://github.com/golang/go", "go"},
+		{"https://gitlab.com/gitlab-org/gitlab.git", "gitlab"},
+		{"https://bitbucket.org/bitbucket/bitbucket", "bitbucket"},
+	}
 
-		project := schema.CVProject{Name: args[0]}
-		project.Print()
-	},
-}
-
-func init() {
-	projectsCmd.AddCommand(printCmd)
+	for _, urlTest := range urls {
+		u := getGitName(urlTest[0])
+		if u != urlTest[1] {
+			t.Errorf("Expected url: %s to return name to be '%s', but got %s", urlTest[0], urlTest[1], u)
+		}
+	}
 }

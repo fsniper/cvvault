@@ -43,7 +43,7 @@ var setDefaultCmd = &cobra.Command{
 	Use:   "set-default",
 	Short: "Set a project as default",
 	Run: func(cmd *cobra.Command, args []string) {
-		project := schema.Project{Name: args[0]}
+		project := schema.CVProject{Name: args[0]}
 		err := project.Read()
 		if err != nil {
 			log.Fatal("Error reading project ", err)

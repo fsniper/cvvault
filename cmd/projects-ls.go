@@ -47,7 +47,7 @@ var lsCmd = &cobra.Command{
 	Short: "List projects",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		projects, err := schema.Project{}.GetAll()
+		projects, err := schema.CVProject{}.GetAll()
 		if err != nil {
 			log.Fatal("Error getting projects ", err)
 		}
