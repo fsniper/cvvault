@@ -75,7 +75,7 @@ func CloneGitRepo(url string) string {
 		// Repo does not exist, so clone it
 		_, err := git.PlainClone(path, false, &git.CloneOptions{URL: url, Progress: os.Stdout})
 		if err != nil {
-			log.Fatal("Could not clone emplate git repo", err)
+			log.Fatal("Could not clone template git repo", err)
 		}
 		return path
 	}

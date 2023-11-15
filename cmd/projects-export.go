@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"github.com/fsniper/cvvault/lib"
+	"github.com/fsniper/cvvault/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -43,9 +43,8 @@ var exportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export project as json or pdf if a json-resume handlebars template provided",
 	Run: func(cmd *cobra.Command, args []string) {
-		lib.CloneGitRepo(templateUrl)
-		//project := schema.CVProject{Name: args[0]}
-		//project.Export(ignoreTags, templateUrl)
+		project := schema.CVProject{Name: args[0]}
+		project.Export(ignoreTags, templateUrl)
 	},
 }
 

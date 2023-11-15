@@ -5,13 +5,14 @@ go 1.19
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.10.0
+	github.com/mailgun/raymond/v2 v2.0.48
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/qri-io/jsonschema v0.2.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0
 	gitlab.com/metakeule/scaffold v1.7.2
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -39,6 +40,7 @@ require (
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/skeema/knownhosts v1.2.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect

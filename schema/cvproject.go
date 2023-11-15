@@ -35,12 +35,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+
+	log "github.com/sirupsen/logrus"
 
 	embedcontent "github.com/fsniper/cvvault/emb"
 	"github.com/fsniper/cvvault/lib"
+	"github.com/mailgun/raymond/v2"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
@@ -56,7 +59,7 @@ type CVProject struct {
 	Meta      CVProjectMeta `json:"-"`
 	Name      string
 	Basics    Basics
-	Works     []Work
+	Work      []Work
 	Volunteer []Volunteer
 	Education []Education
 }
@@ -106,7 +109,7 @@ func (p *CVProject) Read() error {
 	if err != nil {
 		return err
 	}
-	p.Works = works
+	p.Work = works
 	p.Meta.Read = true
 	return nil
 }
@@ -118,25 +121,66 @@ func (p *CVProject) Export(ignoreTags []string, templateUrl string) {
 		log.Fatal("Error reading cvproject ", err)
 	}
 
-	for w, _ := range p.Works {
-		p.Works[w].Filter(ignoreTags)
+	for w, _ := range p.Work {
+		p.Work[w].Filter(ignoreTags)
 	}
 
-	y, err := json.Marshal(p)
-	if err != nil {
-		log.Fatal("error yaml marhal: ", err)
-	}
+	//y, err := json.Marshal(p)
+	//if err != nil {
+	//	log.Fatal("error yaml marhal: ", err)
+	//}
 
-	fmt.Println(string(y))
+	//fmt.Println(string(y))
 
 	path := lib.CloneGitRepo(templateUrl)
 	log.Println(path)
 
-	//path := filepath.Join(projectsDirectory, projectName, "data", "basics.yaml")
+	templateHbs := filepath.Join(path, "resume.hbs")
+	templateCss := filepath.Join(path, "style.css")
+	css, err := ioutil.ReadFile(templateCss)
+	if err != nil {
+		log.Fatal("error reading style: ", err)
+	}
 
-	//yamlContent, err := ioutil.ReadFile(path)
-	//var css = fs.readFileSync(__dirname+"/style.css", "utf-8")
-	//var tpl = fs.readFileSync(__dirname+"/resume.hbs", "utf-8")
+	tpl, err := raymond.ParseFile(templateHbs)
+	if err != nil {
+		log.Fatal("error parsing template: ", err)
+	}
+
+	partialsPath := filepath.Join(path, "partials")
+	files, err := ioutil.ReadDir(partialsPath)
+	if err != nil {
+		log.Error("Error reading partials directory ", err)
+	} else {
+		re := regexp.MustCompile(`^([^.]+).hbs$`)
+		for _, file := range files {
+			if !file.IsDir() {
+				p := filepath.Join(partialsPath, file.Name())
+				partialData, err := ioutil.ReadFile(p)
+				if err != nil {
+					log.Fatal("Could not read partial ", err)
+				}
+
+				match := re.FindStringSubmatch(file.Name())
+				if match != nil {
+					tpl.RegisterPartial(match[1], string(partialData))
+				}
+			}
+		}
+	}
+
+	ctx := map[string]interface{}{
+		"resume": p,
+		"css":    string(css),
+	}
+
+	result, err := tpl.Exec(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(result)
+
 }
 
 func (p *CVProject) Print() {
