@@ -52,12 +52,7 @@ INFO[0000] Validating json
 ```
 
 ```
-% go run cvvault.go projects create onur -n "Mehmet Onur Yalazi" -l "PLatform Engineer" -a "7 Oak Park View" --city Naas --countrycode IE -e onur.yalazi@gmail.com -r Co.Kildare
-INFO[0000] Config file in use: /Users/yalazi/.config/cvvault/cvvault-config.yaml
-INFO[0000] Creating CVProject:  onur /Users/yalazi/Documents/CVVault/WORK/projects/onur
-/Users/yalazi/Documents/CVVault/WORK/projects/onur/data/basics.yaml
-/Users/yalazi/Documents/CVVault/WORK/projects/onur/data/works/my-first-company-STARTYEAR.yaml
-yalazi@Onurs-MacBook-Pro cvvault % go run cvvault.go projects create onur -n "Mehmet Onur Yalazi" -l "PLatform Engineer" -a "7 Oak Park View" --city Naas --countrycode IE -e onur.yalazi@gmail.com -r Co.Kildare
+% go run cvvault.go projects create onur -n "Mehmet Onur Yalazi" -l "PLatform Engineer" --countrycode IE -e onur.yalazi@gmail.com -r Co.Kildare
 INFO[0000] Config file in use: /Users/yalazi/.config/cvvault/cvvault-config.yaml
 INFO[0000] Creating CVProject:  onur /Users/yalazi/Documents/CVVault/WORK/projects/onur
 /Users/yalazi/Documents/CVVault/WORK/projects/onur/data/basics.yaml
