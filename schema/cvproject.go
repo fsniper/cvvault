@@ -37,13 +37,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 
 	log "github.com/sirupsen/logrus"
 
 	embedcontent "github.com/fsniper/cvvault/emb"
-	"github.com/fsniper/cvvault/lib"
-	"github.com/mailgun/raymond/v2"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
@@ -58,10 +55,10 @@ type CVProjectMeta struct {
 type CVProject struct {
 	Meta      CVProjectMeta `json:"-"`
 	Name      string
-	Basics    Basics
-	Work      []Work
-	Volunteer []Volunteer
-	Education []Education
+	Basics    Basics      `json:"basics"`
+	Work      []Work      `json:"work"`
+	Volunteer []Volunteer `json:"volunteer"`
+	Education []Education `json:"education"`
 }
 
 func (p *CVProject) GetFullPath() string {
@@ -125,61 +122,12 @@ func (p *CVProject) Export(ignoreTags []string, templateUrl string) {
 		p.Work[w].Filter(ignoreTags)
 	}
 
-	//y, err := json.Marshal(p)
-	//if err != nil {
-	//	log.Fatal("error yaml marhal: ", err)
-	//}
-
-	//fmt.Println(string(y))
-
-	path := lib.CloneGitRepo(templateUrl)
-	log.Println(path)
-
-	templateHbs := filepath.Join(path, "resume.hbs")
-	templateCss := filepath.Join(path, "style.css")
-	css, err := ioutil.ReadFile(templateCss)
+	y, err := json.Marshal(p)
 	if err != nil {
-		log.Fatal("error reading style: ", err)
+		log.Fatal("error json marhal: ", err)
 	}
 
-	tpl, err := raymond.ParseFile(templateHbs)
-	if err != nil {
-		log.Fatal("error parsing template: ", err)
-	}
-
-	partialsPath := filepath.Join(path, "partials")
-	files, err := ioutil.ReadDir(partialsPath)
-	if err != nil {
-		log.Error("Error reading partials directory ", err)
-	} else {
-		re := regexp.MustCompile(`^([^.]+).hbs$`)
-		for _, file := range files {
-			if !file.IsDir() {
-				p := filepath.Join(partialsPath, file.Name())
-				partialData, err := ioutil.ReadFile(p)
-				if err != nil {
-					log.Fatal("Could not read partial ", err)
-				}
-
-				match := re.FindStringSubmatch(file.Name())
-				if match != nil {
-					tpl.RegisterPartial(match[1], string(partialData))
-				}
-			}
-		}
-	}
-
-	ctx := map[string]interface{}{
-		"resume": p,
-		"css":    string(css),
-	}
-
-	result, err := tpl.Exec(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(result)
+	fmt.Println(string(y))
 
 }
 
