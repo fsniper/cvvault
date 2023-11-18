@@ -32,7 +32,7 @@ package schema
 
 import (
 	"io/ioutil"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"path/filepath"
 
 	"github.com/fsniper/cvvault/lib"

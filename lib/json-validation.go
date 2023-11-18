@@ -35,7 +35,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	embedcontent "github.com/fsniper/cvvault/emb"
 	"github.com/qri-io/jsonschema"

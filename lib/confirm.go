@@ -3,7 +3,7 @@ package lib
 import (
 	"bufio"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )

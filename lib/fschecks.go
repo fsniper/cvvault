@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package lib
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 

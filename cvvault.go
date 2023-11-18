@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/fsniper/cvvault/cmd"
 	"github.com/fsniper/cvvault/lib"
@@ -52,12 +52,6 @@ func initialize() {
 	}
 	viper.SetDefault("projects_directory", path)
 
-	path, err = homedir.Expand("~/Documents/CVVault/templates")
-	if err != nil {
-		log.Fatal("Could not expand path for projects: ", err)
-	}
-	viper.SetDefault("templates_directory", path)
-
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Println("Config was not found")
@@ -69,8 +63,6 @@ func initialize() {
 	log.Println("Config file in use:", viper.ConfigFileUsed())
 
 	path = viper.GetString("projects_directory")
-	lib.CheckDirectory(path)
-	path = viper.GetString("templates_directory")
 	lib.CheckDirectory(path)
 }
 

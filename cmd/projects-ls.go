@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package cmd
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/olekukonko/tablewriter"
