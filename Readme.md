@@ -30,6 +30,7 @@ highlights:
 ## Commands
 
 ### cvvault project
+```
 Available Commands:
   create      Create a new Cv Vault Project
   delete      Delete project
@@ -37,6 +38,8 @@ Available Commands:
   ls          List projects
   print       Print project
   set-default Set a project as default
+```
+
 
 ```
 % go run cvvault.go projects ls
@@ -79,3 +82,12 @@ INFO[0000] Validating json
 ...
 ```
 
+
+## Rendering exported projects
+
+You can use resumed https://www.npmjs.com/package/resumed
+
+```
+% npm install resumed jsonresume-theme-spartacus
+% node ~/node_modules/resumed/bin/resumed.js render /tmp/cv.json --theme jsonresume-theme-spartacus --output WORK/projects/yalazi/resume.html
+```
